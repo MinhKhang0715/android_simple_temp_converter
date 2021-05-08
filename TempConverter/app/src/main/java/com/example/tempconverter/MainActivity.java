@@ -1,8 +1,10 @@
 package com.example.tempconverter;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -11,11 +13,11 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView txtError;
     private RadioButton radioButtonCelToFah;
     private RadioButton radioButtonFahToCel;
     private EditText editTextInput;
@@ -29,8 +31,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Toast message only be shown once after a new install
+        SharedPreferences preferences = getSharedPreferences("prefs", MODE_PRIVATE);
+        boolean firstLaunch = preferences.getBoolean("firstLaunch", true);
+        if (firstLaunch) {
+            Toast.makeText(this, "Welcome", Toast.LENGTH_SHORT).show();
+            SharedPreferences preferences1 = getSharedPreferences("prefs", MODE_PRIVATE);
+            @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = preferences1.edit();
+            editor.putBoolean("firstLaunch", false);
+            editor.apply();
+        }
         //set up all attributes
-        txtError = findViewById(R.id.txtError);
+        ConstraintLayout constraintLayout = findViewById(R.id.myApp);
         radioGroup = findViewById(R.id.radioGroup);
         View view = findViewById(R.id.view);
         radioButtonCelToFah = radioGroup.findViewById(R.id.radioCelToFah);
@@ -40,20 +52,19 @@ public class MainActivity extends AppCompatActivity {
         histories = findViewById(R.id.historiesView);
         toHistoryAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1);
 
-        txtError.setVisibility(View.GONE);
         editTextResult.setFocusable(false);
         editTextResult.setClickable(false);
         view.setFocusable(false);
         view.setClickable(false);
+        //click event on entire screen
+        constraintLayout.setOnClickListener(v -> {
+            editTextResult.setText("", TextView.BufferType.EDITABLE);
+            editTextInput.setText("", TextView.BufferType.EDITABLE);
+
+        });
     }
 
     //OnClick events
-    public void globalOnClicked(View view) {
-        txtError.setVisibility(View.GONE);
-        editTextResult.setText("", TextView.BufferType.EDITABLE);
-        //radioGroup.clearCheck();
-    }
-
     public void radioFahToCel_onClicked(View view) {
         radioButtonCelToFah.setSelected(false);
     }
@@ -67,16 +78,22 @@ public class MainActivity extends AppCompatActivity {
         String txtInput = editTextInput.getText().toString();
 
         if (txtInput.matches("")) {
-            txtError.setText("Empty Input!!");
-            txtError.setVisibility(View.VISIBLE);
+            Toast.makeText(
+                    this,
+                    "Empty input!!",
+                    Toast.LENGTH_SHORT).show();
         }
         else if (!radioButtonCelToFah.isChecked() && !radioButtonFahToCel.isChecked()) {
-            txtError.setText("Please choose a method");
-            txtError.setVisibility(View.VISIBLE);
+            Toast.makeText(
+                    this,
+                    "Please choose a method!!",
+                    Toast.LENGTH_SHORT).show();
         }
         else if (!isNumeric(txtInput)) {
-            txtError.setText("Invalid input!!");
-            txtError.setVisibility(View.VISIBLE);
+            Toast.makeText(
+                    this,
+                    "Invalid input!!",
+                    Toast.LENGTH_SHORT).show();
         }
         else {
             double input = Double.parseDouble(txtInput);
@@ -89,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
                 editTextResult.setText(txtResultValue, TextView.BufferType.EDITABLE);
                 toHistoryAdapter.add(toHistory);
                 histories.setAdapter(toHistoryAdapter);
-                txtError.setVisibility(View.GONE);
             }
             else if (radioButtonFahToCel.isChecked()) {
                 double result = (input - 32.0) * 5.0 / 9.0;
@@ -99,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 editTextResult.setText(txtResultValue, TextView.BufferType.EDITABLE);
                 toHistoryAdapter.add(toHistory);
                 histories.setAdapter(toHistoryAdapter);
-                txtError.setVisibility(View.GONE);
             }
         }
     }
