@@ -1,7 +1,6 @@
 package com.example.tempconverter;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -42,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
         }
         //set up all attributes
-        ConstraintLayout constraintLayout = findViewById(R.id.myApp);
         radioGroup = findViewById(R.id.radioGroup);
         View view = findViewById(R.id.view);
         radioButtonCelToFah = radioGroup.findViewById(R.id.radioCelToFah);
@@ -56,12 +54,6 @@ public class MainActivity extends AppCompatActivity {
         editTextResult.setClickable(false);
         view.setFocusable(false);
         view.setClickable(false);
-        //click event on entire screen
-        constraintLayout.setOnClickListener(v -> {
-            editTextResult.setText("", TextView.BufferType.EDITABLE);
-            editTextInput.setText("", TextView.BufferType.EDITABLE);
-
-        });
     }
 
     //OnClick events
